@@ -26,99 +26,60 @@
 `https://emart24.co.kr/robots.txt` 확인 결과: `/api1/` 경로에 대한 Disallow 규칙이 없습니다.
 본 수집기는 공개 API를 대상으로 0.5초 throttle을 적용하며, 주 1회만 실행합니다.
 
-## 데이터 사용법
+## 데이터 접근
 
-### raw URL로 직접 다운로드
+- **전체 스냅샷**: `https://raw.githubusercontent.com/itda-skills/data-retail/main/emart24/_latest.csv` (약 5,700행, 27 컬럼, `code` ASC 정렬)
+- **월별 파일**: `https://raw.githubusercontent.com/itda-skills/data-retail/main/emart24/{YYYY}/{MM}.csv` (한 매장은 본인의 `open_date` 연·월 파일에 1회만 등장)
+- **변경 이력**: `git clone` 후 `git log emart24/_latest.csv` — 매주 자동 커밋된 diff 가 시계열 변경 기록입니다.
 
-```bash
-# 전체 최신 스냅샷 (1회 다운로드용, 약 5,700행)
-curl -O https://raw.githubusercontent.com/itda-skills/data-retail/main/emart24/_latest.csv
-
-# 특정 월 데이터
-curl -O https://raw.githubusercontent.com/itda-skills/data-retail/main/emart24/2026/04.csv
-```
-
-### pandas로 읽기
-
-```python
-import pandas as pd
-
-# 최신 스냅샷 — code 컬럼은 반드시 string으로 읽어야 zero-pad("00060")가 보존됩니다.
-df = pd.read_csv(
-    "https://raw.githubusercontent.com/itda-skills/data-retail/main/emart24/_latest.csv",
-    dtype={"code": str},
-)
-
-# 특정 월
-df_april = pd.read_csv(
-    "https://raw.githubusercontent.com/itda-skills/data-retail/main/emart24/2026/04.csv",
-    dtype={"code": str},
-)
-
-# 24시간 운영 매장만 필터
-df_24h = df[df["is_24h"] == 1]
-
-# 와인+커피 동시 제공 매장
-df_wc = df[(df["svc_wine"] == 1) & (df["svc_coffee"] == 1)]
-```
-
-### git clone으로 시계열 분석
-
-```bash
-git clone https://github.com/itda-skills/data-retail.git
-cd data-retail
-
-# 특정 매장의 정보 변경 이력
-git log --all -p -- emart24/_latest.csv | grep "00060"
-```
-
-## AI 어시스턴트(Claude / ChatGPT 등) 활용 가이드
+## AI 어시스턴트(Claude / ChatGPT 등) 활용 지침
 
 이 데이터셋은 **AI 에이전트가 즉시 소비 가능한 형태**로 설계되었습니다 — 별도 인증 없이 raw URL 한 줄로 접근할 수 있고, 컬럼이 명시적으로 정의되어 있어 LLM의 코드 생성 정확도가 높습니다.
 
-### 1. 컨텍스트 주입용 프롬프트 템플릿
+### 1. AI에게 데이터를 안내하는 컨텍스트 블록
 
-Claude / ChatGPT / Cursor 등 AI 어시스턴트에게 다음 블록을 컨텍스트로 제공하세요:
+Claude / ChatGPT / Cursor 등에 아래 블록을 그대로 붙여넣어 컨텍스트로 제공하세요.
 
 ```
-You have access to an open dataset of South Korean emart24 convenience store locations
-maintained at https://github.com/itda-skills/data-retail (weekly auto-updated).
+당신은 itda-skills/data-retail 오픈 데이터셋(주간 자동 갱신)에 접근할 수 있다.
+이 데이터는 한국 emart24 편의점 매장 정보다.
 
-Data sources (UTF-8, RFC 4180 CSV, LF):
-- Full snapshot:  https://raw.githubusercontent.com/itda-skills/data-retail/main/emart24/_latest.csv
-                  (~5,700 rows, 27 columns, sorted by code ASC)
-- Monthly files:  emart24/{YYYY}/{MM}.csv  (each store appears once in its OPEN_DATE month)
-- Schema:         emart24/README.md  (column definitions and service flag meanings)
-- Changelog:      emart24/CHANGELOG.md  (weekly diff digest)
+데이터 위치 (UTF-8, RFC 4180 CSV, LF 개행):
+- 전체 스냅샷: https://raw.githubusercontent.com/itda-skills/data-retail/main/emart24/_latest.csv
+              (약 5,700행, 27 컬럼, code 오름차순 정렬)
+- 월별 파일:   emart24/{YYYY}/{MM}.csv (각 매장은 본인의 OPEN_DATE 월 파일에 1회만 등장)
+- 컬럼 정의:   emart24/README.md
+- 변경 다이제스트: emart24/CHANGELOG.md
 
-CRITICAL when loading:
-- Always read the `code` column as string (5-digit zero-padded; integer parsing breaks it).
-- `lat` / `lng` are floats. `open_date` is ISO YYYY-MM-DD. `end_date` is "" if active.
-- 12 service flags are 0/1 columns prefixed `svc_*` (parcel, atm, wine, coffee, smoothie,
-  apple, toto, auto, pickup, chicken, noodle) plus `tobacco_license`.
-- `is_24h` = 1 means store is 24-hour operation.
+데이터 로드 시 반드시 지킬 것:
+- code 컬럼은 항상 문자열로 읽는다. 5자리 zero-pad("00060")이며, 정수로 변환하면 손상된다.
+- lat / lng 는 float, open_date 는 ISO YYYY-MM-DD, end_date 는 빈 문자열이면 영업 중이다.
+- svc_* (12종: parcel, atm, wine, coffee, smoothie, apple, toto, auto, pickup, chicken,
+  noodle) 와 tobacco_license 는 0/1 컬럼이다.
+- is_24h = 1 이면 24시간 운영 매장이다.
 
-License: data CC-BY-NC-4.0, scripts MIT. Original copyright belongs to emart24 Inc.
+라이선스: 데이터 CC-BY-NC-4.0, 스크립트 MIT. 원본 저작권은 이마트24(주)에 귀속된다.
 ```
 
-### 2. Claude Code MCP / 컨텍스트 활용
+### 2. Claude Code / Claude Desktop 에서의 활용
 
-Claude Code 또는 Claude Desktop에서 `/add-dir` 또는 MCP filesystem 서버로 이 레포를 추가한 뒤, 다음과 같이 자연어로 분석 가능합니다:
+Claude Code 의 `/add-dir` 또는 MCP filesystem 서버로 이 레포를 추가한 뒤, 자연어로 다음과 같이 분석을 요청할 수 있습니다.
 
-- "서울 강남구에 있는 24시간 운영 매장을 lat/lng와 함께 알려줘"
+- "서울 강남구에 있는 24시간 운영 매장을 위경도와 함께 알려줘"
 - "지난 분기 신규 오픈한 매장 추세를 월별 막대그래프로 그려줘"
-- "와인 + ATM 동시 제공 매장의 지역 분포를 히트맵으로 보여줘"
+- "와인과 ATM 을 동시에 제공하는 매장의 지역 분포를 보여줘"
 
 ### 3. 변경 이력 기반 시계열 질의
 
-`git log emart24/_latest.csv` 의 diff가 곧 매주 변경 다이제스트입니다. AI에게 다음과 같이 요청할 수 있습니다:
+`git log emart24/_latest.csv` 의 diff 가 곧 매주 변경 다이제스트입니다. 다음과 같이 요청해 보세요.
 
-- "git diff HEAD~4 emart24/_latest.csv 결과를 분석해서 최근 한 달간 신규 매장 목록을 정리해줘"
-- "특정 매장 코드의 서비스 변경 이력을 추적해줘"
+- "최근 한 달간 emart24/_latest.csv 의 git diff 를 분석해서 신규 매장 목록을 정리해줘"
+- "특정 매장 코드의 서비스 플래그 변경 이력을 추적해줘"
+- "지난 6개월간 폐점 추정(last_seen_at 갱신 중단) 매장을 찾아줘"
 
 ### 4. RAG / 벡터 인덱싱
 
-각 매장 row를 `{title} {address} {svc_*}` 텍스트로 합쳐 임베딩하면, 자연어 매장 검색 시스템(예: "공항 근처 24시간 와인 파는 곳")을 즉시 구축할 수 있습니다. `emart24/_latest.csv` 를 단일 소스로 사용하세요.
+각 매장 행을 `{title} {address} {svc_*}` 텍스트로 합쳐 임베딩하면, 자연어 매장 검색 시스템(예: "공항 근처 24시간 와인 파는 곳") 을 즉시 구축할 수 있습니다. `emart24/_latest.csv` 를 단일 소스로 사용하세요.
 
 ## 디렉터리 구조
 
