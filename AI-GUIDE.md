@@ -1,8 +1,9 @@
 # AI 어시스턴트 활용 지침 — itda-skills/data-retail
 
 > 이 문서는 Claude / ChatGPT / Cursor / Copilot 등 AI 어시스턴트가 본 데이터셋을 정확히 이해하고 활용할 수 있도록 작성된 **AI 전용 가이드**입니다.
-> 본 문서는 단일 소스로 관리되며, raw URL 로 직접 로드하여 사용하세요:
-> `https://raw.githubusercontent.com/itda-skills/data-retail/main/AI-GUIDE.md`
+> 본 문서는 단일 소스로 관리되며, 다음 URL 들 중 하나로 직접 로드하여 사용하세요:
+> - jsDelivr (권장): `https://cdn.jsdelivr.net/gh/itda-skills/data-retail@main/AI-GUIDE.md`
+> - GitHub raw (폴백): `https://raw.githubusercontent.com/itda-skills/data-retail/main/AI-GUIDE.md`
 
 ---
 
@@ -14,11 +15,23 @@
 
 ## 1. 데이터 위치 (UTF-8, RFC 4180 CSV, LF 개행)
 
-- 전체 스냅샷: `https://raw.githubusercontent.com/itda-skills/data-retail/main/emart24/_latest.csv`
-  - 약 5,700행, 27 컬럼, `code` 오름차순 정렬
+각 데이터 파일은 두 가지 호스트로 동일하게 제공된다. 환경에 따라 적절한 호스트를 사용하라.
+
+| 호스트 | URL 패턴 | Content-Type | 권장 환경 |
+|---|---|---|---|
+| **jsDelivr CDN** (권장) | `https://cdn.jsdelivr.net/gh/itda-skills/data-retail@main/{path}` | `text/csv` | Claude.ai web, ChatGPT, 일반 브라우저 fetch |
+| **GitHub raw** | `https://raw.githubusercontent.com/itda-skills/data-retail/main/{path}` | `text/plain` (sandbox CSP) | curl, git, Claude Code, 서버측 fetch |
+
+> **Claude.ai web (claude chat) 에서 fetch 가 실패하면 반드시 jsDelivr URL 로 재시도하라.** GitHub raw 응답에 붙은 sandbox CSP 헤더가 일부 브라우저측 fetch 도구에서 차단되는 알려진 이슈가 있다. jsDelivr 는 정상 `text/csv` 를 반환한다. (단, jsDelivr 캐시는 12시간 지연이 있을 수 있다.)
+
+주요 파일 경로:
+
+- 전체 스냅샷: `emart24/_latest.csv` (약 5,700행, 27 컬럼, `code` 오름차순 정렬)
 - 월별 파일: `emart24/{YYYY}/{MM}.csv` — 각 매장은 본인의 `open_date` 연·월 파일에 1회만 등장
-- 컬럼 정의: `https://raw.githubusercontent.com/itda-skills/data-retail/main/emart24/README.md`
-- 변경 다이제스트: `https://raw.githubusercontent.com/itda-skills/data-retail/main/emart24/CHANGELOG.md`
+- 컬럼 정의: `emart24/README.md`
+- 변경 다이제스트: `emart24/CHANGELOG.md`
+
+예: 2025년 12월 파일을 jsDelivr 로 받으려면 `https://cdn.jsdelivr.net/gh/itda-skills/data-retail@main/emart24/2025/12.csv`
 
 ## 2. 데이터 로드 시 반드시 지킬 것
 

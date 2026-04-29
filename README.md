@@ -28,9 +28,16 @@
 
 ## 데이터 접근
 
-- **전체 스냅샷**: `https://raw.githubusercontent.com/itda-skills/data-retail/main/emart24/_latest.csv` (약 5,700행, 27 컬럼, `code` ASC 정렬)
-- **월별 파일**: `https://raw.githubusercontent.com/itda-skills/data-retail/main/emart24/{YYYY}/{MM}.csv` (한 매장은 본인의 `open_date` 연·월 파일에 1회만 등장)
+각 파일은 두 호스트로 동일하게 제공됩니다. 일반적으로는 **jsDelivr CDN 을 권장**합니다 — `text/csv` 헤더로 서빙되어 Claude.ai web 등 브라우저 기반 fetch 도구와의 호환성이 좋습니다.
+
+- **전체 스냅샷**:
+  - jsDelivr (권장): `https://cdn.jsdelivr.net/gh/itda-skills/data-retail@main/emart24/_latest.csv`
+  - GitHub raw: `https://raw.githubusercontent.com/itda-skills/data-retail/main/emart24/_latest.csv`
+  - 약 5,700행, 27 컬럼, `code` ASC 정렬
+- **월별 파일**: 위 URL 패턴에서 `_latest.csv` 자리를 `{YYYY}/{MM}.csv` 로 교체. 한 매장은 본인의 `open_date` 연·월 파일에 1회만 등장합니다.
 - **변경 이력**: `git clone` 후 `git log emart24/_latest.csv` — 매주 자동 커밋된 diff 가 시계열 변경 기록입니다.
+
+> jsDelivr 는 글로벌 CDN 캐시를 사용하므로 갱신이 최대 12시간 지연될 수 있습니다. 실시간 최신값이 필요하면 GitHub raw URL 또는 git clone 을 사용하세요.
 
 ## AI 어시스턴트(Claude / ChatGPT 등) 활용
 
@@ -42,7 +49,8 @@
 
 ```
 다음 URL의 내용을 먼저 읽고, 안내된 규칙에 따라 emart24 데이터셋을 활용해줘:
-https://raw.githubusercontent.com/itda-skills/data-retail/main/AI-GUIDE.md
+https://cdn.jsdelivr.net/gh/itda-skills/data-retail@main/AI-GUIDE.md
+(만약 위 URL fetch 가 실패하면 https://raw.githubusercontent.com/itda-skills/data-retail/main/AI-GUIDE.md 로 재시도)
 ```
 
 ### 로컬에서 분석하려면 (Claude Code / Claude Desktop)
