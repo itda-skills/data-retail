@@ -309,7 +309,7 @@ def update_monthly_csvs(
     Args:
         stores: normalize_store() 결과 목록
         latest_map: load_latest_map() 결과 (code → row)
-        base_dir: emart24/ 디렉터리 경로
+        base_dir: 체인 디렉터리 경로 (예: convenience/emart24/)
         today: 오늘 날짜
 
     Returns:
@@ -412,7 +412,7 @@ def run_transaction(
     Args:
         api_stores: normalize_store() 결과 목록
         latest_map: load_latest_map() 결과
-        base_dir: emart24/ 디렉터리 경로
+        base_dir: 체인 디렉터리 경로 (예: convenience/emart24/)
         today: 오늘 날짜
 
     Returns:
@@ -546,7 +546,7 @@ def main() -> int:
     parser.add_argument(
         "--base-dir",
         type=Path,
-        default=Path(__file__).parent.parent / "emart24",
+        default=Path(__file__).parent.parent / "convenience" / "emart24",
         help="emart24 데이터 디렉터리",
     )
     args = parser.parse_args()

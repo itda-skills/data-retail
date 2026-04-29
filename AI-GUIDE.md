@@ -27,20 +27,23 @@
 
 > **Claude.ai web (claude chat) 에서 fetch 가 실패하면 반드시 jsDelivr URL 로 재시도하라.** GitHub raw 응답에 붙은 sandbox CSP 헤더가 일부 브라우저측 fetch 도구에서 차단되는 알려진 이슈가 있다. jsDelivr 는 정상 `text/csv` 를 반환한다. (단, jsDelivr 캐시는 12시간 지연이 있을 수 있다.)
 
-### 체인별 표준 디렉터리 레이아웃
+### 카테고리·체인 표준 디렉터리 레이아웃
 
-각 체인 디렉터리는 동일한 5종 파일을 가진다. `{chain}` 자리는 `emart24`, `gs25`, `cu`, `seven_eleven`, `ministop` 등 체인 식별자다.
+본 저장소는 **2단계 분류**를 사용한다: `{category}/{chain}/`. 카테고리 예: `convenience` (편의점), `grocery` (마트), `cafe`, `pharmacy`, `restaurant`. 체인 예: `emart24`, `gs25`, `starbucks`.
+
+각 체인 디렉터리는 동일한 4종 파일을 가진다.
 
 | 경로 | 내용 |
 |---|---|
-| `{chain}/_latest.csv` | 전체 매장 평면 스냅샷, 매주 통째로 재작성, `code` 오름차순 정렬 |
-| `{chain}/{YYYY}/{MM}.csv` | 신규 등록 월별 분배 — 각 매장은 본인의 `open_date` 연·월 파일에 1회만 등장 |
-| `{chain}/README.md` | **그 체인 고유의 컬럼 정의·서비스 플래그 의미** (반드시 먼저 읽을 것) |
-| `{chain}/CHANGELOG.md` | 주간 변경 다이제스트 (사람이 읽기용) |
+| `{category}/{chain}/_latest.csv` | 전체 매장 평면 스냅샷, 매주 통째로 재작성, `code` 오름차순 정렬 |
+| `{category}/{chain}/{YYYY}/{MM}.csv` | 신규 등록 월별 분배 — 각 매장은 본인의 `open_date` 연·월 파일에 1회만 등장 |
+| `{category}/{chain}/README.md` | **그 체인 고유의 컬럼 정의·서비스 플래그 의미** (반드시 먼저 읽을 것) |
+| `{category}/{chain}/CHANGELOG.md` | 주간 변경 다이제스트 (사람이 읽기용) |
 
-체인별 컬럼·플래그가 일부 다를 수 있다. 분석 전에 해당 체인의 `{chain}/README.md` 를 먼저 로드하라.
+체인별 컬럼·플래그가 일부 다를 수 있다. 분석 전에 해당 체인의 `{category}/{chain}/README.md` 를 먼저 로드하라.
 
-예: emart24 의 2025년 12월 파일은 `https://cdn.jsdelivr.net/gh/itda-skills/data-retail@main/emart24/2025/12.csv`
+예: emart24 (convenience 카테고리) 의 2025년 12월 파일은
+`https://cdn.jsdelivr.net/gh/itda-skills/data-retail@main/convenience/emart24/2025/12.csv`
 
 ## 2. 모든 체인에 공통으로 적용되는 로드 규칙
 

@@ -3,10 +3,11 @@ id: SPEC-EMART24-001
 title: emart24 매장 정보 주간 자동 수집 — GitHub Actions + 월별 CSV 누적 + latest snapshot
 status: approved
 priority: medium
-version: 1.2.0
+version: 1.3.0
 created_at: 2026-04-29
 updated_at: 2026-04-29
 history:
+  - 2026-04-29 v1.3.0: sub-category 디렉터리 구조 도입 — `emart24/` → `convenience/emart24/` 이동. 향후 `convenience/gs25`, `grocery/emart` 등 확장 대비. 모든 raw URL 경로 변경, 스크립트·워크플로우·문서 일괄 갱신
   - 2026-04-29 v1.2.0: 구현 중 발견된 두 모순 수정 — (a) `_latest.csv` 컬럼 수 26→27 정정 (월별 표는 26개), (b) REQ-EM-004 신규 등록월 규칙을 "OPEN_DATE 월 고정"으로 명확화하여 인수 테스트 #3과 일치
   - 2026-04-29 v1.1.0: latest snapshot(`_latest.csv`) 도입 — 신규 판정 O(1), git diff 가독성 개선 (REQ-EM-004/005 수정, REQ-EM-005b 신설)
   - 2026-04-29 v1.0.0: 초기 SPEC
@@ -62,25 +63,26 @@ data-retail/                              (레포 루트)
 │   ├── requirements.txt                  # requests
 │   └── tests/
 │       └── test_fetch_emart24.py
-└── emart24/
-    ├── README.md                         # CSV 컬럼 정의, 서비스 플래그 의미
-    ├── CHANGELOG.md                      # 주간 변경 다이제스트 (사람이 읽기용)
-    ├── _latest.csv                       # 전체 매장 평면 스냅샷 (매주 통째로 재작성, 신규 판정 소스)
-    ├── 2007/
-    │   └── 06.csv
-    ├── 2008/
-    │   ├── 01.csv
-    │   └── 02.csv
-    ├── ...
-    ├── 2026/
-    │   ├── 04.csv
-    │   └── 05.csv                        # 예정 오픈 매장 포함 가능
-    └── ...
+└── convenience/                          # sub-category: 편의점
+    └── emart24/                          # 체인
+        ├── README.md                     # CSV 컬럼 정의, 서비스 플래그 의미
+        ├── CHANGELOG.md                  # 주간 변경 다이제스트 (사람이 읽기용)
+        ├── _latest.csv                   # 전체 매장 평면 스냅샷 (매주 통째로 재작성, 신규 판정 소스)
+        ├── 2007/
+        │   └── 06.csv
+        ├── 2008/
+        │   ├── 01.csv
+        │   └── 02.csv
+        ├── ...
+        ├── 2026/
+        │   ├── 04.csv
+        │   └── 05.csv                    # 예정 오픈 매장 포함 가능
+        └── ...
 ```
 
 ### 월별 CSV 규칙 (REQ-EM-005 참조)
 
-- 파일명: `emart24/{YYYY}/{MM}.csv` (월 2자리 zero-padded)
+- 파일명: `convenience/emart24/{YYYY}/{MM}.csv` (월 2자리 zero-padded)
 - 한 매장은 **본인의 "신규 등록 월" 파일에 1회만 등장**
 - "신규 등록 월" = **항상 매장의 `OPEN_DATE` 연·월** (예: OPEN_DATE=`2015-03-12` → `2015/03.csv`, OPEN_DATE=`2026-05-25` → `2026/05.csv`)
 - `first_seen_at` 컬럼은 별도 차원으로 본 레포가 처음 관측한 일자를 보존하며 등록월 결정에 영향 없음
@@ -122,9 +124,9 @@ data-retail/                              (레포 루트)
 | `first_seen_at` | string | ISO 날짜 — 본 레포가 처음 관측한 일자 |
 | `last_seen_at` | string | ISO 날짜 — 가장 최근 워크플로우 실행 관측 일자 |
 
-### Latest Snapshot 규칙 (`emart24/_latest.csv`, REQ-EM-005b 참조)
+### Latest Snapshot 규칙 (`convenience/emart24/_latest.csv`, REQ-EM-005b 참조)
 
-- 위치: `emart24/_latest.csv` (체인 디렉터리 루트)
+- 위치: `convenience/emart24/_latest.csv` (체인 디렉터리 루트)
 - 내용: 본 레포가 관측한 **전체 매장 평면 목록** (5,700여 행)
 - 매주 워크플로우 실행 시 **통째로 재작성** (append 아님, 정렬 키: `code` ASC)
 - 컬럼: 월별 CSV와 동일 (위 표) + 다음 1개 추가
@@ -188,7 +190,7 @@ The system SHALL use `CODE` as the primary key and preserve its 5-digit zero-pad
 WHEN the fetch completes, the system SHALL determine the "new month" file destination for each store using `_latest.csv` as the single source of truth.
 
 **Acceptance criteria:**
-- 판정 소스: `emart24/_latest.csv` 1회 로드 → `code → row` 메모리 맵 (O(1) 룩업)
+- 판정 소스: `convenience/emart24/_latest.csv` 1회 로드 → `code → row` 메모리 맵 (O(1) 룩업)
   - `_latest.csv` 부재(부트스트랩 첫 실행) 시: 빈 맵으로 시작, 모든 매장은 신규로 분류
   - 월별 CSV는 판정 소스로 사용하지 않음 (폴백·검증 시에만 스캔)
 - 매장의 신규 등록 월 = **항상 `open_date.year/month`** (first_seen_at은 등록월 결정에 사용하지 않으며 별도 컬럼으로 보존)
@@ -219,10 +221,10 @@ WHEN store data is normalized, the system SHALL write each store to exactly one 
 
 ### REQ-EM-005b (Event-driven) — Latest Snapshot 재작성
 
-WHEN store data is normalized, the system SHALL rewrite `emart24/_latest.csv` from scratch with the current full store population.
+WHEN store data is normalized, the system SHALL rewrite `convenience/emart24/_latest.csv` from scratch with the current full store population.
 
 **Acceptance criteria:**
-- 위치: `emart24/_latest.csv`
+- 위치: `convenience/emart24/_latest.csv`
 - 매주 **통째로 재작성** (in-place 갱신 아님, 임시파일 → atomic rename)
 - 정렬: `code` ASC (안정적 git diff 보장)
 - 행 구성:
@@ -237,7 +239,7 @@ WHEN store data is normalized, the system SHALL rewrite `emart24/_latest.csv` fr
 
 ### REQ-EM-006 (Event-driven) — 변경 다이제스트 작성
 
-WHEN the monthly CSVs are updated, the system SHALL append a weekly digest entry to `emart24/CHANGELOG.md`.
+WHEN the monthly CSVs are updated, the system SHALL append a weekly digest entry to `convenience/emart24/CHANGELOG.md`.
 
 **Acceptance criteria:**
 - 형식 (역순 시간 정렬, 최신이 위):
@@ -256,7 +258,7 @@ WHEN the monthly CSVs are updated, the system SHALL append a weekly digest entry
 - 신규 매장 목록은 최대 10개까지 표시, 초과 시 "외 N개"
 - 정보 갱신은 카운트만 (개별 diff는 git diff)
 - 실행 링크는 GitHub Actions 환경변수 (`GITHUB_RUN_ID`, `GITHUB_REPOSITORY`)에서 추출
-- 다이제스트 분석 소스: `git diff HEAD~1 -- emart24/_latest.csv` 단일 파일 분석
+- 다이제스트 분석 소스: `git diff HEAD~1 -- convenience/emart24/_latest.csv` 단일 파일 분석
   - 추가된 row → 신규 등록 (code 기준)
   - 변경된 row → 정보 갱신 (변경 필드 카운트)
   - 직전 값 대비 `last_seen_at`이 갱신되지 않은 row → API 미관측 (이번 실행에서 재발견 안됨)
@@ -337,7 +339,7 @@ setup Python + install requests
 python scripts/fetch_emart24.py
   ├─ API 페이지 1~143 순회
   ├─ 정규화 (Store row 5,700개)
-  ├─ emart24/_latest.csv 1회 로드 (CODE → row 메모리 맵, O(1) 룩업)
+  ├─ convenience/emart24/_latest.csv 1회 로드 (CODE → row 메모리 맵, O(1) 룩업)
   │    - 부재 시 빈 맵으로 시작 (부트스트랩)
   ├─ 매장별 처리:
   │    - _latest에 없음 → 신규: 등록 월 결정 → 월별 파일에 append, _latest 맵에 추가

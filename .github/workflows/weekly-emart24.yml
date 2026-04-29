@@ -42,7 +42,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add emart24/
+          git add convenience/emart24/
 
           if git diff --cached --quiet; then
             echo "변경 없음. 커밋 건너뜀."

@@ -63,8 +63,8 @@ def _make_row(
 def test_parse_diff_detects_new_store():
     """완전 신규 매장 (added 만 있음) 을 신규로 분류한다."""
     diff = [
-        "diff --git a/emart24/_latest.csv b/emart24/_latest.csv",
-        "+++ b/emart24/_latest.csv",
+        "diff --git a/convenience/emart24/_latest.csv b/convenience/emart24/_latest.csv",
+        "+++ b/convenience/emart24/_latest.csv",
         "@@ -1,1 +1,2 @@",
         "+" + _make_row("00100", "강남신규점", "2026-04-29"),
     ]
@@ -80,7 +80,7 @@ def test_parse_diff_detects_update_when_last_seen_today():
     """동일 code 가 - 와 + 양쪽에 있고 last_seen_at 이 오늘이면 갱신."""
     today = "2026-04-29"
     diff = [
-        "+++ b/emart24/_latest.csv",
+        "+++ b/convenience/emart24/_latest.csv",
         "-" + _make_row("00060", "동대사랑점", "2026-04-22"),
         "+" + _make_row("00060", "동대사랑점-개명", today),
     ]
@@ -93,7 +93,7 @@ def test_parse_diff_detects_update_when_last_seen_today():
 def test_parse_diff_detects_unobserved_when_last_seen_not_today():
     """동일 code 가 양쪽에 있는데 last_seen_at 이 오늘이 아니면 미관측."""
     diff = [
-        "+++ b/emart24/_latest.csv",
+        "+++ b/convenience/emart24/_latest.csv",
         "-" + _make_row("00200", "구로점", "2026-04-22"),
         "+" + _make_row("00200", "구로점", "2026-04-22"),
     ]

@@ -1,6 +1,6 @@
 """
 SPEC-EMART24-001: 주간 변경 다이제스트 생성 스크립트
-git diff HEAD~1 -- emart24/_latest.csv 를 분석하여 CHANGELOG.md에 항목을 추가한다.
+git diff HEAD~1 -- convenience/emart24/_latest.csv 를 분석하여 CHANGELOG.md에 항목을 추가한다.
 """
 
 import os
@@ -16,12 +16,12 @@ MAX_STORE_NAMES = 10
 
 def get_diff_lines(repo_root: Path) -> list:
     """
-    git diff HEAD~1 -- emart24/_latest.csv 결과를 줄 단위로 반환한다.
+    git diff HEAD~1 -- convenience/emart24/_latest.csv 결과를 줄 단위로 반환한다.
     HEAD~1이 없으면 (첫 커밋) 빈 리스트를 반환한다.
     """
     try:
         result = subprocess.run(
-            ["git", "diff", "HEAD~1", "--", "emart24/_latest.csv"],
+            ["git", "diff", "HEAD~1", "--", "convenience/emart24/_latest.csv"],
             capture_output=True,
             text=True,
             cwd=repo_root,
@@ -214,7 +214,7 @@ def prepend_to_changelog(entry: str, changelog_path: Path) -> None:
 def main() -> int:
     """다이제스트 생성 메인 함수."""
     repo_root = Path(__file__).parent.parent
-    changelog_path = repo_root / "emart24" / "CHANGELOG.md"
+    changelog_path = repo_root / "convenience" / "emart24" / "CHANGELOG.md"
     today_str = str(date.today())
     run_id = os.environ.get("GITHUB_RUN_ID", "")
     repository = os.environ.get("GITHUB_REPOSITORY", "")
