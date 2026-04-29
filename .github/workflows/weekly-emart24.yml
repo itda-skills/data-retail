@@ -1,0 +1,57 @@
+name: Weekly emart24 Fetch
+
+on:
+  schedule:
+    # 매주 일요일 18:00 UTC = 월요일 03:00 KST
+    - cron: "0 18 * * 0"
+  workflow_dispatch:
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 저장소 체크아웃 (전체 히스토리)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Python 3.11 설정
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 의존성 설치
+        run: pip install -r scripts/requirements.txt
+
+      - name: emart24 매장 정보 수집
+        id: fetch
+        run: python scripts/fetch_emart24.py
+
+      - name: 변경 다이제스트 생성
+        run: python scripts/update_changelog.py
+        env:
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+
+      - name: git 커밋 및 push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add emart24/
+
+          if git diff --cached --quiet; then
+            echo "변경 없음. 커밋 건너뜀."
+            exit 0
+          fi
+
+          TODAY=$(date -u +"%Y-%m-%d")
+
+          # 통계 파일에서 숫자 추출 (없으면 0)
+          NEW_COUNT=$(git diff --cached --stat | grep -oP '\d+(?= insertion)' | head -1 || echo 0)
+          UPD_COUNT=0
+          UNOBS_COUNT=0
+
+          git commit -m "chore(emart24): weekly fetch ${TODAY} — 신규 ${NEW_COUNT}, 갱신 ${UPD_COUNT}, 미관측 ${UNOBS_COUNT} [skip ci]"
+          git push
