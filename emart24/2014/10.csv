@@ -1,0 +1,3 @@
+"code","title","address","address_detail","phone","lat","lng","open_date","end_date","start_hhmm","end_hhmm","is_24h","svc_parcel","svc_atm","svc_wine","svc_coffee","svc_smoothie","svc_apple","svc_toto","svc_auto","svc_pickup","svc_chicken","svc_noodle","tobacco_license","first_seen_at","last_seen_at"
+"00459","청주산남점","충청북도 청주시 서원구 두꺼비로 91","산남퀸덤아파트상가 105호","","36.6125969035843","127.464015820906","2014-10-13","","07:00","00:00",0,0,0,0,0,0,0,0,0,0,0,0,0,"2026-04-29","2026-04-29"
+"00542","내리점","경기도 안성시 대덕면 내리6길 24","","","36.9995896941081","127.222674051889","2014-10-31","","00:00","00:00",1,0,1,0,0,0,0,0,0,0,0,0,0,"2026-04-29","2026-04-29"
