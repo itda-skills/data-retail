@@ -3,6 +3,7 @@ SPEC-EMART24-001: emart24 매장 정보 수집 스크립트
 emart24 공개 API에서 전체 매장 데이터를 수집하여 월별 CSV로 누적 저장하고,
 _latest.csv를 atomic rename으로 갱신한다.
 """
+
 import argparse
 import csv
 import os
@@ -37,13 +38,32 @@ PAGE_SIZE = 40
 
 # 월별 CSV 컬럼 (25개)
 MONTHLY_COLUMNS = [
-    "code", "title", "address", "address_detail", "phone",
-    "lat", "lng", "open_date", "end_date",
-    "start_hhmm", "end_hhmm", "is_24h",
-    "svc_parcel", "svc_atm", "svc_wine", "svc_coffee", "svc_smoothie",
-    "svc_apple", "svc_toto", "svc_auto", "svc_pickup", "svc_chicken",
-    "svc_noodle", "tobacco_license",
-    "first_seen_at", "last_seen_at",
+    "code",
+    "title",
+    "address",
+    "address_detail",
+    "phone",
+    "lat",
+    "lng",
+    "open_date",
+    "end_date",
+    "start_hhmm",
+    "end_hhmm",
+    "is_24h",
+    "svc_parcel",
+    "svc_atm",
+    "svc_wine",
+    "svc_coffee",
+    "svc_smoothie",
+    "svc_apple",
+    "svc_toto",
+    "svc_auto",
+    "svc_pickup",
+    "svc_chicken",
+    "svc_noodle",
+    "tobacco_license",
+    "first_seen_at",
+    "last_seen_at",
 ]
 
 # _latest.csv 컬럼 (26개 = 월별 25개 + current_month_file)
@@ -51,12 +71,28 @@ LATEST_COLUMNS = MONTHLY_COLUMNS + ["current_month_file"]
 
 # 갱신 대상 필드 (보존 필드: code, open_date, first_seen_at)
 UPDATE_FIELDS = [
-    "title", "address", "address_detail", "phone",
-    "lat", "lng", "end_date",
-    "start_hhmm", "end_hhmm", "is_24h",
-    "svc_parcel", "svc_atm", "svc_wine", "svc_coffee", "svc_smoothie",
-    "svc_apple", "svc_toto", "svc_auto", "svc_pickup", "svc_chicken",
-    "svc_noodle", "tobacco_license",
+    "title",
+    "address",
+    "address_detail",
+    "phone",
+    "lat",
+    "lng",
+    "end_date",
+    "start_hhmm",
+    "end_hhmm",
+    "is_24h",
+    "svc_parcel",
+    "svc_atm",
+    "svc_wine",
+    "svc_coffee",
+    "svc_smoothie",
+    "svc_apple",
+    "svc_toto",
+    "svc_auto",
+    "svc_pickup",
+    "svc_chicken",
+    "svc_noodle",
+    "tobacco_license",
     "last_seen_at",
 ]
 
@@ -64,6 +100,7 @@ UPDATE_FIELDS = [
 # ---------------------------------------------------------------------------
 # 정규화
 # ---------------------------------------------------------------------------
+
 
 def _normalize_date(raw_date: str) -> str:
     """'YYYY.MM.DD' 형식을 'YYYY-MM-DD' ISO 형식으로 변환한다."""
@@ -139,6 +176,7 @@ def normalize_store(raw: dict) -> dict:
 # _latest.csv 로드
 # ---------------------------------------------------------------------------
 
+
 def load_latest_map(path: Path) -> dict:
     """
     _latest.csv를 읽어 code → row 메모리 맵을 반환한다.
@@ -164,6 +202,7 @@ def load_latest_map(path: Path) -> dict:
 # ---------------------------------------------------------------------------
 # 신규 등록 월 결정
 # ---------------------------------------------------------------------------
+
 
 def decide_destination(store: dict, latest_map: dict, today: date) -> tuple:
     """
@@ -200,9 +239,6 @@ def decide_destination(store: dict, latest_map: dict, today: date) -> tuple:
 
     # OPEN_DATE 파싱
     open_year, open_month = int(open_date_str[:4]), int(open_date_str[5:7])
-    open_ym = (open_year, open_month)
-
-    today_ym = (today.year, today.month)
 
     # SPEC 인수 테스트 #3: OPEN_DATE가 미래이면 → OPEN_DATE 월 파일
     # SPEC 규칙: min(open_date_yyyymm, first_seen_yyyymm) but OPEN_DATE월 파일 기준
@@ -218,6 +254,7 @@ def decide_destination(store: dict, latest_map: dict, today: date) -> tuple:
 # ---------------------------------------------------------------------------
 # _latest.csv 재작성
 # ---------------------------------------------------------------------------
+
 
 def rewrite_latest_csv(rows: list, path: Path) -> None:
     """
@@ -257,6 +294,7 @@ def rewrite_latest_csv(rows: list, path: Path) -> None:
 # ---------------------------------------------------------------------------
 # 월별 CSV 갱신
 # ---------------------------------------------------------------------------
+
 
 def update_monthly_csvs(
     stores: list,
@@ -360,6 +398,7 @@ def _write_monthly_file(path: Path, rows: list) -> None:
 # 트랜잭션 실행 (REQ-EM-005/005b/010)
 # ---------------------------------------------------------------------------
 
+
 def run_transaction(
     api_stores: list,
     latest_map: dict,
@@ -383,7 +422,6 @@ def run_transaction(
     tmp_path = base_dir / "_latest.csv.tmp"
 
     # 백업: 영향받는 월별 CSV 파일 목록 추적
-    backups: dict = {}  # path → 원본 내용 (bytes)
 
     try:
         # 1단계: 월별 CSV 갱신
@@ -417,6 +455,7 @@ def run_transaction(
 # ---------------------------------------------------------------------------
 # API 수집
 # ---------------------------------------------------------------------------
+
 
 def fetch_all_pages(session, delay: float = 0.5) -> list:
     """
@@ -493,6 +532,7 @@ def _fetch_page_with_retry(session, params: dict, max_retries: int = 3):
 # ---------------------------------------------------------------------------
 # 엔트리포인트
 # ---------------------------------------------------------------------------
+
 
 def main() -> int:
     """

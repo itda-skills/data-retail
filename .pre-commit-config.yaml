@@ -1,0 +1,33 @@
+# Pre-commit hooks: 커밋 전 자동 검증
+# 설치: pip install pre-commit && pre-commit install
+# 수동 전체 실행: pre-commit run --all-files
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+        args: [--maxkb=2048]
+      - id: check-merge-conflict
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.4
+    hooks:
+      - id: ruff
+        args: [--fix]
+        files: ^scripts/.*\.py$
+      - id: ruff-format
+        files: ^scripts/.*\.py$
+
+  - repo: local
+    hooks:
+      - id: pytest
+        name: pytest (scripts/tests)
+        entry: python -m pytest scripts/tests/ -q
+        language: system
+        pass_filenames: false
+        files: ^scripts/.*\.py$
+        stages: [pre-commit]

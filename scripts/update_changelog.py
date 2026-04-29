@@ -2,6 +2,7 @@
 SPEC-EMART24-001: 주간 변경 다이제스트 생성 스크립트
 git diff HEAD~1 -- emart24/_latest.csv 를 분석하여 CHANGELOG.md에 항목을 추가한다.
 """
+
 import os
 import subprocess
 import sys
@@ -46,7 +47,7 @@ def parse_diff(diff_lines: list, today_str: str) -> dict:
           unobserved: [{code, title}],
         }
     """
-    added_rows = []    # '+' 로 시작하는 데이터 행
+    added_rows = []  # '+' 로 시작하는 데이터 행
     removed_rows = []  # '-' 로 시작하는 데이터 행
 
     for line in diff_lines:
@@ -65,8 +66,10 @@ def parse_diff(diff_lines: list, today_str: str) -> dict:
             month_file = parts[-1].strip('"') if parts else ""
             last_seen = parts[25].strip('"') if len(parts) > 25 else ""
             added_codes[code] = {
-                "code": code, "title": title,
-                "month_file": month_file, "last_seen_at": last_seen,
+                "code": code,
+                "title": title,
+                "month_file": month_file,
+                "last_seen_at": last_seen,
             }
 
     # 제거된 code 집합
@@ -94,7 +97,9 @@ def parse_diff(diff_lines: list, today_str: str) -> dict:
             if info.get("last_seen_at") == today_str:
                 updated_count += 1
             else:
-                unobserved_stores.append(removed_map.get(code, {"code": code, "title": ""}))
+                unobserved_stores.append(
+                    removed_map.get(code, {"code": code, "title": ""})
+                )
 
     # removed_codes에 있지만 added_codes에 없는 것 = 완전 사라진 행 (미관측)
     for code in removed_codes:
@@ -111,6 +116,7 @@ def parse_diff(diff_lines: list, today_str: str) -> dict:
 def _split_csv_row(row: str) -> list:
     """간단한 CSV 행 분리 (따옴표 처리)."""
     import csv
+
     reader = csv.reader([row])
     try:
         return next(reader)
@@ -129,7 +135,9 @@ def _month_summary(new_stores: list) -> str:
     return ", ".join(parts)
 
 
-def build_digest_entry(stats: dict, today_str: str, run_id: str, repository: str) -> str:
+def build_digest_entry(
+    stats: dict, today_str: str, run_id: str, repository: str
+) -> str:
     """
     CHANGELOG.md에 추가할 다이제스트 항목 문자열을 생성한다.
 
@@ -194,7 +202,7 @@ def prepend_to_changelog(entry: str, changelog_path: Path) -> None:
         existing = changelog_path.read_text(encoding="utf-8")
         # 헤더 다음에 삽입
         if existing.startswith(header):
-            new_content = header + entry + "\n" + existing[len(header):]
+            new_content = header + entry + "\n" + existing[len(header) :]
         else:
             new_content = existing + "\n" + entry
     else:

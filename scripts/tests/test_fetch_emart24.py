@@ -3,26 +3,21 @@ SPEC-EMART24-001 단위 테스트
 emart24 매장 정보 수집 파이프라인의 핵심 로직을 검증한다.
 실제 API 호출 없이 mock fixture를 사용한다.
 """
+
 import csv
-import io
-import os
 import sys
-import tempfile
 from datetime import date
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
-import pytest
 
 # 테스트 대상 모듈 경로 추가
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from fetch_emart24 import (
     decide_destination,
-    load_latest_map,
     normalize_store,
     rewrite_latest_csv,
-    update_monthly_csvs,
 )
 
 # ---------------------------------------------------------------------------
@@ -58,13 +53,32 @@ RAW_STORE_BASE = {
 
 # 정규화된 매장 행 (월별 CSV용)
 NORMALIZED_COLUMNS = [
-    "code", "title", "address", "address_detail", "phone",
-    "lat", "lng", "open_date", "end_date",
-    "start_hhmm", "end_hhmm", "is_24h",
-    "svc_parcel", "svc_atm", "svc_wine", "svc_coffee", "svc_smoothie",
-    "svc_apple", "svc_toto", "svc_auto", "svc_pickup", "svc_chicken",
-    "svc_noodle", "tobacco_license",
-    "first_seen_at", "last_seen_at",
+    "code",
+    "title",
+    "address",
+    "address_detail",
+    "phone",
+    "lat",
+    "lng",
+    "open_date",
+    "end_date",
+    "start_hhmm",
+    "end_hhmm",
+    "is_24h",
+    "svc_parcel",
+    "svc_atm",
+    "svc_wine",
+    "svc_coffee",
+    "svc_smoothie",
+    "svc_apple",
+    "svc_toto",
+    "svc_auto",
+    "svc_pickup",
+    "svc_chicken",
+    "svc_noodle",
+    "tobacco_license",
+    "first_seen_at",
+    "last_seen_at",
 ]
 
 LATEST_COLUMNS = NORMALIZED_COLUMNS + ["current_month_file"]
@@ -73,6 +87,7 @@ LATEST_COLUMNS = NORMALIZED_COLUMNS + ["current_month_file"]
 # ---------------------------------------------------------------------------
 # T01: OPEN_DATE 정규화 — "2008.01.28" → "2008-01-28"
 # ---------------------------------------------------------------------------
+
 
 def test_T01_open_date_normalization():
     """REQ-EM-002: OPEN_DATE 점(.) 구분자를 ISO 하이픈(-)으로 정규화한다."""
@@ -89,6 +104,7 @@ def test_T01_open_date_normalization():
 # ---------------------------------------------------------------------------
 # T02: END_DATE 정규화 — "9999.12.31" → 빈 문자열
 # ---------------------------------------------------------------------------
+
 
 def test_T02_end_date_sentinel_to_empty():
     """REQ-EM-002: END_DATE '9999.12.31'은 폐점일 미정으로, 빈 문자열로 정규화한다."""
@@ -115,6 +131,7 @@ def test_T02b_end_date_real_date_preserved():
 # ---------------------------------------------------------------------------
 # T03: is_24h 계산
 # ---------------------------------------------------------------------------
+
 
 def test_T03_is_24h_svr24_flag():
     """REQ-EM-002: SVR_24=1 이면 is_24h=1."""
@@ -156,6 +173,7 @@ def test_T03c_is_24h_false():
 # T04: code zero-padding 5자리 보존
 # ---------------------------------------------------------------------------
 
+
 def test_T04_code_zero_padding_preserved():
     """REQ-EM-003: CODE는 5자리 zero-padded 문자열로 보존한다. 정수 변환 금지."""
     raw = dict(RAW_STORE_BASE)
@@ -193,6 +211,7 @@ def test_T04b_code_written_quoted(tmp_path):
 # T05: 신규 매장 등록월 결정 — _latest.csv 부재(부트스트랩)
 # ---------------------------------------------------------------------------
 
+
 def test_T05_bootstrap_no_latest_csv():
     """REQ-EM-004: _latest.csv가 없으면 모든 매장이 신규. first_seen_at = 오늘."""
     today = date(2026, 4, 29)
@@ -214,6 +233,7 @@ def test_T05_bootstrap_no_latest_csv():
 # T06: 신규 매장 등록월 결정 — A < B (오래된 매장 뒤늦게 등장)
 # ---------------------------------------------------------------------------
 
+
 def test_T06_old_store_late_discovery():
     """REQ-EM-004: OPEN_DATE가 오늘보다 오래됐고 _latest에 없으면 OPEN_DATE 월 기준."""
     today = date(2026, 4, 29)
@@ -230,6 +250,7 @@ def test_T06_old_store_late_discovery():
 # ---------------------------------------------------------------------------
 # T07: 신규 매장 등록월 결정 — A > B (예정 오픈 매장)
 # ---------------------------------------------------------------------------
+
 
 def test_T07_future_open_date_store():
     """REQ-EM-004: OPEN_DATE가 오늘보다 미래이면 OPEN_DATE 월 파일에 등록."""
@@ -248,6 +269,7 @@ def test_T07_future_open_date_store():
 # ---------------------------------------------------------------------------
 # T08: 동일 매장 재실행 시 행 갱신, 월 이동 없음
 # ---------------------------------------------------------------------------
+
 
 def test_T08_existing_store_update_no_month_move():
     """REQ-EM-005: 기존 매장은 current_month_file 보존, first_seen_at 보존, last_seen_at 갱신."""
@@ -273,12 +295,17 @@ def test_T08_existing_store_update_no_month_move():
 # T09: _latest.csv 재작성 — code ASC 정렬, 26개 컬럼
 # ---------------------------------------------------------------------------
 
+
 def test_T09_rewrite_latest_csv_sorted_26cols(tmp_path):
     """REQ-EM-005b: _latest.csv는 code ASC 정렬, 26개 컬럼으로 재작성된다."""
     today = "2026-04-29"
 
     stores = []
-    for code, month in [("00200", "2020/01"), ("00060", "2008/01"), ("00150", "2015/03")]:
+    for code, month in [
+        ("00200", "2020/01"),
+        ("00060", "2008/01"),
+        ("00150", "2015/03"),
+    ]:
         raw = dict(RAW_STORE_BASE, CODE=code)
         store = normalize_store(raw)
         store["first_seen_at"] = today
@@ -314,6 +341,7 @@ def test_T09_rewrite_latest_csv_sorted_26cols(tmp_path):
 # T10: API 미관측 매장 — _latest.csv에 보존
 # ---------------------------------------------------------------------------
 
+
 def test_T10_unobserved_store_preserved_in_latest(tmp_path):
     """REQ-EM-005b: 이번 실행에서 API에 없는 매장도 _latest.csv에 보존된다."""
     today = date(2026, 5, 6)
@@ -321,37 +349,67 @@ def test_T10_unobserved_store_preserved_in_latest(tmp_path):
     base_dir.mkdir()
 
     # 이전 실행: 매장 A, B 있었음
-    existing_a = dict(RAW_STORE_BASE, CODE="00060")
-    existing_b = dict(RAW_STORE_BASE, CODE="00100", TITLE="사라진점")
+    dict(RAW_STORE_BASE, CODE="00060")
+    dict(RAW_STORE_BASE, CODE="00100", TITLE="사라진점")
 
     # latest_map: 두 매장 모두 기존
     latest_map = {
         "00060": {
-            "code": "00060", "title": "테스트점",
-            "address": "서울시", "address_detail": "", "phone": "02-1234",
-            "lat": "37.5", "lng": "127.0",
-            "open_date": "2008-01-28", "end_date": "",
-            "start_hhmm": "00:00", "end_hhmm": "00:00",
+            "code": "00060",
+            "title": "테스트점",
+            "address": "서울시",
+            "address_detail": "",
+            "phone": "02-1234",
+            "lat": "37.5",
+            "lng": "127.0",
+            "open_date": "2008-01-28",
+            "end_date": "",
+            "start_hhmm": "00:00",
+            "end_hhmm": "00:00",
             "is_24h": "1",
-            "svc_parcel": "1", "svc_atm": "0", "svc_wine": "0",
-            "svc_coffee": "1", "svc_smoothie": "0", "svc_apple": "0",
-            "svc_toto": "0", "svc_auto": "0", "svc_pickup": "1",
-            "svc_chicken": "0", "svc_noodle": "0", "tobacco_license": "1",
-            "first_seen_at": "2026-04-29", "last_seen_at": "2026-04-29",
+            "svc_parcel": "1",
+            "svc_atm": "0",
+            "svc_wine": "0",
+            "svc_coffee": "1",
+            "svc_smoothie": "0",
+            "svc_apple": "0",
+            "svc_toto": "0",
+            "svc_auto": "0",
+            "svc_pickup": "1",
+            "svc_chicken": "0",
+            "svc_noodle": "0",
+            "tobacco_license": "1",
+            "first_seen_at": "2026-04-29",
+            "last_seen_at": "2026-04-29",
             "current_month_file": "2008/01",
         },
         "00100": {
-            "code": "00100", "title": "사라진점",
-            "address": "서울시", "address_detail": "", "phone": "02-9999",
-            "lat": "37.6", "lng": "127.1",
-            "open_date": "2020-01-01", "end_date": "",
-            "start_hhmm": "09:00", "end_hhmm": "22:00",
+            "code": "00100",
+            "title": "사라진점",
+            "address": "서울시",
+            "address_detail": "",
+            "phone": "02-9999",
+            "lat": "37.6",
+            "lng": "127.1",
+            "open_date": "2020-01-01",
+            "end_date": "",
+            "start_hhmm": "09:00",
+            "end_hhmm": "22:00",
             "is_24h": "0",
-            "svc_parcel": "0", "svc_atm": "0", "svc_wine": "0",
-            "svc_coffee": "0", "svc_smoothie": "0", "svc_apple": "0",
-            "svc_toto": "0", "svc_auto": "0", "svc_pickup": "0",
-            "svc_chicken": "0", "svc_noodle": "0", "tobacco_license": "0",
-            "first_seen_at": "2026-04-29", "last_seen_at": "2026-04-29",
+            "svc_parcel": "0",
+            "svc_atm": "0",
+            "svc_wine": "0",
+            "svc_coffee": "0",
+            "svc_smoothie": "0",
+            "svc_apple": "0",
+            "svc_toto": "0",
+            "svc_auto": "0",
+            "svc_pickup": "0",
+            "svc_chicken": "0",
+            "svc_noodle": "0",
+            "tobacco_license": "0",
+            "first_seen_at": "2026-04-29",
+            "last_seen_at": "2026-04-29",
             "current_month_file": "2020/01",
         },
     }
@@ -388,6 +446,7 @@ def test_T10_unobserved_store_preserved_in_latest(tmp_path):
 # T11: 트랜잭션 롤백 — 월별 CSV 작성 실패 시 tmp 정리
 # ---------------------------------------------------------------------------
 
+
 def test_T11_transaction_rollback_on_failure(tmp_path):
     """REQ-EM-010: 월별 CSV 작성 실패 시 _latest.csv.tmp가 남지 않는다."""
     base_dir = tmp_path / "emart24"
@@ -402,8 +461,10 @@ def test_T11_transaction_rollback_on_failure(tmp_path):
     store["current_month_file"] = "2008/01"
 
     # 쓰기 실패를 유발하는 mock: update_monthly_csvs가 예외를 던짐
-    with patch("fetch_emart24.update_monthly_csvs", side_effect=IOError("디스크 쓰기 실패")):
-        with patch("fetch_emart24.rewrite_latest_csv") as mock_rewrite:
+    with patch(
+        "fetch_emart24.update_monthly_csvs", side_effect=IOError("디스크 쓰기 실패")
+    ):
+        with patch("fetch_emart24.rewrite_latest_csv"):
             # main() 또는 트랜잭션 함수가 예외 시 tmp 파일을 정리하는지 검증
             # 직접 트랜잭션 함수를 호출하여 롤백 로직 테스트
             from fetch_emart24 import run_transaction
@@ -416,12 +477,8 @@ def test_T11_transaction_rollback_on_failure(tmp_path):
             )
 
     # 실패 시 tmp 파일이 남아있지 않아야 한다
-    assert not tmp_path_file.exists(), (
-        "_latest.csv.tmp가 실패 후 정리되어야 한다."
-    )
+    assert not tmp_path_file.exists(), "_latest.csv.tmp가 실패 후 정리되어야 한다."
     # 실패 시 _latest.csv도 생성되지 않아야 한다
-    assert not latest_path.exists(), (
-        "실패 시 _latest.csv가 생성되지 않아야 한다."
-    )
+    assert not latest_path.exists(), "실패 시 _latest.csv가 생성되지 않아야 한다."
     # 반환값은 None 또는 실패를 나타내는 값이어야 한다
     assert result is None, "트랜잭션 실패 시 None을 반환해야 한다."
