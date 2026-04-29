@@ -32,16 +32,16 @@ def _make_gs25_row(
     # code, title, address, lat, lng, services, svc_*22, first_seen_at, last_seen_at, current_month_file
     svc_zeros = ["0"] * 22
     cols = [
-        code,           # code
-        title,          # title
-        "서울 강남구",   # address
-        "37.4792",      # lat
-        "127.0453",     # lng
-        "atm;cafe25",   # services
-        *svc_zeros,     # svc_* 22개
-        "2026-04-29",   # first_seen_at
-        last_seen,      # last_seen_at
-        month_file,     # current_month_file
+        code,  # code
+        title,  # title
+        "서울 강남구",  # address
+        "37.4792",  # lat
+        "127.0453",  # lng
+        "atm;cafe25",  # services
+        *svc_zeros,  # svc_* 22개
+        "2026-04-29",  # first_seen_at
+        last_seen,  # last_seen_at
+        month_file,  # current_month_file
     ]
     return ",".join(f'"{c}"' for c in cols)
 

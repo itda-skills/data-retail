@@ -33,13 +33,16 @@ VQ670_FIXTURE = FIXTURES_DIR / "gs25_vq670.json"
 # 공통 fixture — VQ670 원시 레코드
 # ---------------------------------------------------------------------------
 
+
 # 정적 fixture에서 VQ670 원시 레코드 추출 (테스트 모듈 로드 시 1회)
 def _load_vq670_raw() -> dict:
     """gs25_vq670.json에서 VQ670 원시 레코드를 로드한다."""
     with open(VQ670_FIXTURE, encoding="utf-8") as f:
         raw_text = f.read()
     inner = json.loads(raw_text)
-    assert isinstance(inner, str), "첫 번째 json.loads 결과는 str이어야 한다 (이중 인코딩)"
+    assert isinstance(inner, str), (
+        "첫 번째 json.loads 결과는 str이어야 한다 (이중 인코딩)"
+    )
     data = json.loads(inner)
     results = data["results"]
     vq670_list = [r for r in results if r.get("shopCode") == "VQ670"]
@@ -54,7 +57,7 @@ RAW_STORE_BASE = {
     "shopCode": "VQ670",
     "shopName": "GS25강남개포점",
     "address": "서울특별시 강남구 개포로15길 10",
-    "lat": "127.045318254341",   # API 오인: 실제 경도
+    "lat": "127.045318254341",  # API 오인: 실제 경도
     "longs": "37.4792069328551",  # API 오인: 실제 위도
     "offeringService": [],
 }
@@ -67,9 +70,9 @@ RAW_STORE_BASE = {
 
 def test_T01_csrf_token_extracted_from_html():
     """REQ-GS25-002: 정상 HTML에서 CSRFToken이 추출된다."""
-    html = '''<script>
+    html = """<script>
     ACC.config.CSRFToken = "b6681905-1ea7-426e-96c4-e8df9d548563";
-    </script>'''
+    </script>"""
 
     mock_session = MagicMock()
     mock_resp = MagicMock()
@@ -78,10 +81,13 @@ def test_T01_csrf_token_extracted_from_html():
     mock_session.get.return_value = mock_resp
 
     # HTML에서 시도 파싱 실패 방지용 — 최소한의 시도 HTML 포함
-    html_with_sido = html + '''
+    html_with_sido = (
+        html
+        + """
     <select id="stb1">
       <option value="11">서울시</option>
-    </select>'''
+    </select>"""
+    )
     mock_resp.text = html_with_sido
 
     token, sidos = fetch_gs25.bootstrap_session(mock_session)
@@ -109,7 +115,25 @@ def test_T01b_csrf_token_absent_raises():
 # T02: 시도 17개 파싱 — REQ-GS25-002 (HTML fixture)
 # ---------------------------------------------------------------------------
 
-EXPECTED_SIDO_CODES = {11, 26, 27, 28, 29, 30, 31, 36, 41, 43, 44, 46, 47, 48, 50, 51, 52}
+EXPECTED_SIDO_CODES = {
+    11,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    36,
+    41,
+    43,
+    44,
+    46,
+    47,
+    48,
+    50,
+    51,
+    52,
+}
 
 
 def test_T02_sido_17_parsed_from_html_fixture():
@@ -134,8 +158,8 @@ def test_T02_sido_17_parsed_from_html_fixture():
 
 def test_T02b_sido_zero_matches_raises():
     """REQ-GS25-002: 시도 옵션이 0건이면 RuntimeError가 발생한다 (fail-fast)."""
-    html = '''<script>ACC.config.CSRFToken = "abc-123";</script>
-    <select id="stb1"></select>'''
+    html = """<script>ACC.config.CSRFToken = "abc-123";</script>
+    <select id="stb1"></select>"""
 
     mock_session = MagicMock()
     mock_resp = MagicMock()
@@ -201,13 +225,16 @@ def test_T04_lat_longs_swap_vq670():
 
 def test_T04b_lat_longs_swap_simple():
     """REQ-GS25-005: lat/longs swap 로직을 단순 수치로 검증한다."""
-    raw = dict(RAW_STORE_BASE, **{
-        "lat": "127.1",    # API lat = 실제 경도
-        "longs": "37.5",   # API longs = 실제 위도
-    })
+    raw = dict(
+        RAW_STORE_BASE,
+        **{
+            "lat": "127.1",  # API lat = 실제 경도
+            "longs": "37.5",  # API longs = 실제 위도
+        },
+    )
     result = normalize_store(raw)
-    assert result["lat"] == 37.5    # 실제 위도
-    assert result["lng"] == 127.1   # 실제 경도
+    assert result["lat"] == 37.5  # 실제 위도
+    assert result["lng"] == 127.1  # 실제 경도
 
 
 # ---------------------------------------------------------------------------
@@ -215,10 +242,28 @@ def test_T04b_lat_longs_swap_simple():
 # ---------------------------------------------------------------------------
 
 ALL_SERVICES = [
-    "cafe25", "instant", "drug", "post", "withdrawal", "atm", "taxrefund",
-    "smart_atm", "self_cooking_utensils", "delivery_service", "parcel_service",
-    "potatoes", "cardiac_defi", "fish_shaped_bun", "wine25", "go_pizza",
-    "spirit_wine", "fresh_ganghw", "musinsa", "posa", "toto", "self25",
+    "cafe25",
+    "instant",
+    "drug",
+    "post",
+    "withdrawal",
+    "atm",
+    "taxrefund",
+    "smart_atm",
+    "self_cooking_utensils",
+    "delivery_service",
+    "parcel_service",
+    "potatoes",
+    "cardiac_defi",
+    "fish_shaped_bun",
+    "wine25",
+    "go_pizza",
+    "spirit_wine",
+    "fresh_ganghw",
+    "musinsa",
+    "posa",
+    "toto",
+    "self25",
 ]
 
 
@@ -403,7 +448,11 @@ def test_T10_rewrite_latest_csv_sorted_31cols(tmp_path):
     """REQ-GS25-005b: _latest.csv는 code ASC 정렬, 31개 컬럼으로 재작성된다."""
     today = "2026-04-29"
     stores = []
-    for code, month in [("ZZ999", "2026/04"), ("AA001", "2026/04"), ("MM500", "2026/04")]:
+    for code, month in [
+        ("ZZ999", "2026/04"),
+        ("AA001", "2026/04"),
+        ("MM500", "2026/04"),
+    ]:
         raw = dict(RAW_STORE_BASE, shopCode=code)
         s = normalize_store(raw)
         s["first_seen_at"] = today
@@ -482,7 +531,9 @@ def test_T11_unobserved_store_preserved_in_latest(tmp_path):
         rows = list(reader)
 
     codes = [r["code"] for r in rows]
-    assert "GHOST001" in codes, "미관측 매장 'GHOST001'이 _latest.csv에 보존되어야 한다."
+    assert "GHOST001" in codes, (
+        "미관측 매장 'GHOST001'이 _latest.csv에 보존되어야 한다."
+    )
 
     ghost = next(r for r in rows if r["code"] == "GHOST001")
     assert ghost["last_seen_at"] == "2026-04-29", (
@@ -512,6 +563,7 @@ def test_T12_transaction_rollback_on_failure(tmp_path):
         "fetch_gs25.update_monthly_csvs", side_effect=IOError("디스크 쓰기 실패")
     ):
         from fetch_gs25 import run_transaction
+
         result = run_transaction(
             api_stores=[store],
             latest_map={},
@@ -557,7 +609,10 @@ def test_T14_throttle_sleep_called_between_requests():
     mock_session = MagicMock()
     mock_resp = MagicMock()
     mock_resp.status_code = 200
-    mock_resp.json.return_value = {"result": [["1168", "강남구"]], "resultCode": "00000"}
+    mock_resp.json.return_value = {
+        "result": [["1168", "강남구"]],
+        "resultCode": "00000",
+    }
     mock_session.get.return_value = mock_resp
 
     with patch("fetch_gs25.time") as mock_time:
@@ -594,12 +649,14 @@ def test_T15_fetch_stores_double_json_decode():
     mock_session.post.return_value = mock_resp
 
     with patch("fetch_gs25.time"):
-        results = fetch_gs25.fetch_stores(mock_session, "TOKEN", "11", "1168", "11680103")
+        results = fetch_gs25.fetch_stores(
+            mock_session, "TOKEN", "11", "1168", "11680103"
+        )
 
     assert len(results) == 1
     assert results[0]["code"] == "TEST001"
-    assert results[0]["lat"] == 37.5    # longs → lat (swap)
-    assert results[0]["lng"] == 127.0   # lat → lng (swap)
+    assert results[0]["lat"] == 37.5  # longs → lat (swap)
+    assert results[0]["lng"] == 127.0  # lat → lng (swap)
 
 
 # ---------------------------------------------------------------------------
@@ -638,6 +695,7 @@ def test_T16b_code_quoted_in_csv(tmp_path):
 def test_T17_load_latest_map_returns_empty_when_missing(tmp_path):
     """REQ-GS25-006: _latest.csv가 없으면 빈 딕셔너리를 반환한다."""
     from fetch_gs25 import load_latest_map
+
     result = load_latest_map(tmp_path / "nonexistent.csv")
     assert result == {}, "파일 부재 시 빈 딕셔너리여야 한다."
 
@@ -699,6 +757,7 @@ def test_T18b_update_monthly_csvs_existing_store(tmp_path):
     store["last_seen_at"] = "2026-04-29"
     store["current_month_file"] = "2026/04"
     from fetch_gs25 import _write_monthly_file
+
     csv_path = base_dir / "2026" / "04.csv"
     _write_monthly_file(csv_path, [store])
 
@@ -721,7 +780,10 @@ def test_T19_fetch_dong_sleep_called():
     mock_session = MagicMock()
     mock_resp = MagicMock()
     mock_resp.status_code = 200
-    mock_resp.json.return_value = {"result": [["11680103", "개포동"]], "resultCode": "00000"}
+    mock_resp.json.return_value = {
+        "result": [["11680103", "개포동"]],
+        "resultCode": "00000",
+    }
     mock_session.get.return_value = mock_resp
 
     with patch("fetch_gs25.time") as mock_time:
@@ -752,12 +814,18 @@ def test_T20_main_smoke_dry_run(tmp_path, monkeypatch):
     # gungu mock
     mock_gungu_resp = MagicMock()
     mock_gungu_resp.status_code = 200
-    mock_gungu_resp.json.return_value = {"result": [["1168", "강남구"]], "resultCode": "00000"}
+    mock_gungu_resp.json.return_value = {
+        "result": [["1168", "강남구"]],
+        "resultCode": "00000",
+    }
 
     # dong mock
     mock_dong_resp = MagicMock()
     mock_dong_resp.status_code = 200
-    mock_dong_resp.json.return_value = {"result": [["11680103", "개포동"]], "resultCode": "00000"}
+    mock_dong_resp.json.return_value = {
+        "result": [["11680103", "개포동"]],
+        "resultCode": "00000",
+    }
 
     # locationList mock (이중 JSON)
     inner = json.dumps({"results": [dict(RAW_STORE_BASE)]})
@@ -768,8 +836,8 @@ def test_T20_main_smoke_dry_run(tmp_path, monkeypatch):
 
     mock_session.get.side_effect = [
         mock_bootstrap_resp,  # bootstrap
-        mock_gungu_resp,       # gungu for sido 11
-        mock_dong_resp,        # dong for gungu 1168
+        mock_gungu_resp,  # gungu for sido 11
+        mock_dong_resp,  # dong for gungu 1168
     ]
     mock_session.post.return_value = mock_post_resp
 
@@ -837,11 +905,17 @@ def test_T20d_main_full_run_writes_csv(tmp_path):
 
     mock_gungu_resp = MagicMock()
     mock_gungu_resp.status_code = 200
-    mock_gungu_resp.json.return_value = {"result": [["1168", "강남구"]], "resultCode": "00000"}
+    mock_gungu_resp.json.return_value = {
+        "result": [["1168", "강남구"]],
+        "resultCode": "00000",
+    }
 
     mock_dong_resp = MagicMock()
     mock_dong_resp.status_code = 200
-    mock_dong_resp.json.return_value = {"result": [["11680103", "개포동"]], "resultCode": "00000"}
+    mock_dong_resp.json.return_value = {
+        "result": [["11680103", "개포동"]],
+        "resultCode": "00000",
+    }
 
     inner = json.dumps({"results": [dict(RAW_STORE_BASE)]})
     double_encoded = json.dumps(inner)
@@ -849,12 +923,17 @@ def test_T20d_main_full_run_writes_csv(tmp_path):
     mock_post_resp.status_code = 200
     mock_post_resp.text = double_encoded
 
-    mock_session.get.side_effect = [mock_bootstrap_resp, mock_gungu_resp, mock_dong_resp]
+    mock_session.get.side_effect = [
+        mock_bootstrap_resp,
+        mock_gungu_resp,
+        mock_dong_resp,
+    ]
     mock_session.post.return_value = mock_post_resp
 
     # 직접 run_transaction까지 호출하여 CSV 작성 확인
     store = normalize_store(RAW_STORE_BASE)
     from fetch_gs25 import run_transaction
+
     stats = run_transaction([store], {}, base_dir, date(2026, 4, 29))
     assert stats is not None
     assert stats["new"] == 1
@@ -952,7 +1031,9 @@ def test_T22b_post_with_retry_5xx_retries():
 
     with patch("fetch_gs25.time"):
         try:
-            _post_with_retry(mock_session, "http://example.com", data="test", headers={})
+            _post_with_retry(
+                mock_session, "http://example.com", data="test", headers={}
+            )
             assert False, "5xx 재시도 소진 시 RuntimeError가 발생해야 한다."
         except RuntimeError:
             pass
@@ -969,7 +1050,9 @@ def test_T22c_post_with_retry_network_error_retries():
 
     with patch("fetch_gs25.time"):
         try:
-            _post_with_retry(mock_session, "http://example.com", data="test", headers={})
+            _post_with_retry(
+                mock_session, "http://example.com", data="test", headers={}
+            )
             assert False, "네트워크 오류 재시도 소진 시 RuntimeError가 발생해야 한다."
         except RuntimeError:
             pass
@@ -997,12 +1080,17 @@ def test_T23_main_dong_failure_returns_1():
 
     mock_gungu_resp = MagicMock()
     mock_gungu_resp.status_code = 200
-    mock_gungu_resp.json.return_value = {"result": [["1168", "강남구"]], "resultCode": "00000"}
+    mock_gungu_resp.json.return_value = {
+        "result": [["1168", "강남구"]],
+        "resultCode": "00000",
+    }
 
     mock_dong_resp = MagicMock()
     mock_dong_resp.status_code = 500  # 5xx → 백오프 3회 후 실패
 
-    mock_session.get.side_effect = [mock_bootstrap_resp, mock_gungu_resp] + [mock_dong_resp] * 3
+    mock_session.get.side_effect = [mock_bootstrap_resp, mock_gungu_resp] + [
+        mock_dong_resp
+    ] * 3
 
     with patch("fetch_gs25.requests") as mock_requests:
         mock_requests.Session.return_value = mock_session
@@ -1027,16 +1115,26 @@ def test_T23b_main_store_fetch_failure_returns_1():
 
     mock_gungu_resp = MagicMock()
     mock_gungu_resp.status_code = 200
-    mock_gungu_resp.json.return_value = {"result": [["1168", "강남구"]], "resultCode": "00000"}
+    mock_gungu_resp.json.return_value = {
+        "result": [["1168", "강남구"]],
+        "resultCode": "00000",
+    }
 
     mock_dong_resp = MagicMock()
     mock_dong_resp.status_code = 200
-    mock_dong_resp.json.return_value = {"result": [["11680103", "개포동"]], "resultCode": "00000"}
+    mock_dong_resp.json.return_value = {
+        "result": [["11680103", "개포동"]],
+        "resultCode": "00000",
+    }
 
     mock_post_resp = MagicMock()
     mock_post_resp.status_code = 403  # 4xx 즉시 실패
 
-    mock_session.get.side_effect = [mock_bootstrap_resp, mock_gungu_resp, mock_dong_resp]
+    mock_session.get.side_effect = [
+        mock_bootstrap_resp,
+        mock_gungu_resp,
+        mock_dong_resp,
+    ]
     mock_session.post.return_value = mock_post_resp
 
     with patch("fetch_gs25.requests") as mock_requests:
@@ -1062,13 +1160,16 @@ def test_T23c_main_duplicate_code_returns_1():
 
     mock_gungu_resp = MagicMock()
     mock_gungu_resp.status_code = 200
-    mock_gungu_resp.json.return_value = {"result": [["1168", "강남구"]], "resultCode": "00000"}
+    mock_gungu_resp.json.return_value = {
+        "result": [["1168", "강남구"]],
+        "resultCode": "00000",
+    }
 
     mock_dong_resp = MagicMock()
     mock_dong_resp.status_code = 200
     mock_dong_resp.json.return_value = {
         "result": [["11680103", "개포동"], ["11680104", "개포2동"]],
-        "resultCode": "00000"
+        "resultCode": "00000",
     }
 
     # 두 동에서 모두 VQ670을 반환 → 중복 code
@@ -1079,7 +1180,11 @@ def test_T23c_main_duplicate_code_returns_1():
     mock_post_resp.status_code = 200
     mock_post_resp.text = double_encoded
 
-    mock_session.get.side_effect = [mock_bootstrap_resp, mock_gungu_resp, mock_dong_resp]
+    mock_session.get.side_effect = [
+        mock_bootstrap_resp,
+        mock_gungu_resp,
+        mock_dong_resp,
+    ]
     mock_session.post.return_value = mock_post_resp
 
     with patch("fetch_gs25.requests") as mock_requests:

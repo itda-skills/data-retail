@@ -58,7 +58,7 @@ def parse_diff(diff_lines: list, today_str: str) -> dict:
           unobserved: [{code, title}],
         }
     """
-    added_rows = []   # '+' 로 시작하는 데이터 행
+    added_rows = []  # '+' 로 시작하는 데이터 행
     removed_rows = []  # '-' 로 시작하는 데이터 행
 
     for line in diff_lines:
@@ -74,8 +74,14 @@ def parse_diff(diff_lines: list, today_str: str) -> dict:
         if len(parts) >= _TOTAL_COLS and parts[_COL_CODE].strip('"') not in ("code",):
             code = parts[_COL_CODE].strip('"')
             title = parts[_COL_TITLE].strip('"') if len(parts) > _COL_TITLE else ""
-            month_file = parts[_COL_MONTH_FILE].strip('"') if len(parts) > _COL_MONTH_FILE else ""
-            last_seen = parts[_COL_LAST_SEEN].strip('"') if len(parts) > _COL_LAST_SEEN else ""
+            month_file = (
+                parts[_COL_MONTH_FILE].strip('"')
+                if len(parts) > _COL_MONTH_FILE
+                else ""
+            )
+            last_seen = (
+                parts[_COL_LAST_SEEN].strip('"') if len(parts) > _COL_LAST_SEEN else ""
+            )
             added_codes[code] = {
                 "code": code,
                 "title": title,
@@ -213,7 +219,7 @@ def prepend_to_changelog(entry: str, changelog_path: Path) -> None:
         existing = changelog_path.read_text(encoding="utf-8")
         # 헤더 다음에 삽입
         if existing.startswith(header):
-            new_content = header + entry + "\n" + existing[len(header):]
+            new_content = header + entry + "\n" + existing[len(header) :]
         else:
             new_content = existing + "\n" + entry
     else:

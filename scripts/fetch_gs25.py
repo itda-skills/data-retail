@@ -60,10 +60,28 @@ SIDO_OPTION_RE = re.compile(r'<option[^>]*value="(\d+)"[^>]*>([^<]+)</option>')
 # 22종 서비스 플래그 화이트리스트 (REQ-GS25-005)
 # @MX:NOTE: [AUTO] 22종 서비스 코드는 SPEC-GS25-001에서 고정. 신규 코드는 WARN 로깅 후 services 컬럼에만 보존.
 SERVICE_WHITELIST = [
-    "cafe25", "instant", "drug", "post", "withdrawal", "atm", "taxrefund",
-    "smart_atm", "self_cooking_utensils", "delivery_service", "parcel_service",
-    "potatoes", "cardiac_defi", "fish_shaped_bun", "wine25", "go_pizza",
-    "spirit_wine", "fresh_ganghw", "musinsa", "posa", "toto", "self25",
+    "cafe25",
+    "instant",
+    "drug",
+    "post",
+    "withdrawal",
+    "atm",
+    "taxrefund",
+    "smart_atm",
+    "self_cooking_utensils",
+    "delivery_service",
+    "parcel_service",
+    "potatoes",
+    "cardiac_defi",
+    "fish_shaped_bun",
+    "wine25",
+    "go_pizza",
+    "spirit_wine",
+    "fresh_ganghw",
+    "musinsa",
+    "posa",
+    "toto",
+    "self25",
 ]
 
 # 월별 CSV 컬럼 (30개)
@@ -110,12 +128,28 @@ UPDATE_FIELDS = [
     "lat",
     "lng",
     "services",
-    "svc_cafe25", "svc_instant", "svc_drug", "svc_post", "svc_withdrawal",
-    "svc_atm", "svc_taxrefund", "svc_smart_atm", "svc_self_cooking_utensils",
-    "svc_delivery_service", "svc_parcel_service", "svc_potatoes",
-    "svc_cardiac_defi", "svc_fish_shaped_bun", "svc_wine25", "svc_go_pizza",
-    "svc_spirit_wine", "svc_fresh_ganghw", "svc_musinsa", "svc_posa",
-    "svc_toto", "svc_self25",
+    "svc_cafe25",
+    "svc_instant",
+    "svc_drug",
+    "svc_post",
+    "svc_withdrawal",
+    "svc_atm",
+    "svc_taxrefund",
+    "svc_smart_atm",
+    "svc_self_cooking_utensils",
+    "svc_delivery_service",
+    "svc_parcel_service",
+    "svc_potatoes",
+    "svc_cardiac_defi",
+    "svc_fish_shaped_bun",
+    "svc_wine25",
+    "svc_go_pizza",
+    "svc_spirit_wine",
+    "svc_fresh_ganghw",
+    "svc_musinsa",
+    "svc_posa",
+    "svc_toto",
+    "svc_self25",
     "last_seen_at",
 ]
 
@@ -177,9 +211,7 @@ def bootstrap_session(session) -> tuple:
     ]
 
     if not sidos:
-        raise RuntimeError(
-            "시도 옵션이 0건입니다. HTML 구조가 변경되었을 수 있습니다."
-        )
+        raise RuntimeError("시도 옵션이 0건입니다. HTML 구조가 변경되었을 수 있습니다.")
 
     return csrf_token, sidos
 
@@ -213,9 +245,7 @@ def fetch_gungu(session, sido_code: str, delay: float = 0.5) -> list:
     # resultCode 검증 (REQ-GS25-003)
     result_code = data.get("resultCode")
     if result_code is not None and result_code != "00000":
-        raise RuntimeError(
-            f"searchGungu resultCode 오류: {result_code}. 응답: {data}"
-        )
+        raise RuntimeError(f"searchGungu resultCode 오류: {result_code}. 응답: {data}")
 
     result = data.get("result", [])
     return [(item[0], item[1]) for item in result if item]
@@ -250,9 +280,7 @@ def fetch_dong(session, sido_code: str, gungu_code: str, delay: float = 0.5) -> 
 
     result_code = data.get("resultCode")
     if result_code is not None and result_code != "00000":
-        raise RuntimeError(
-            f"searchDong resultCode 오류: {result_code}. 응답: {data}"
-        )
+        raise RuntimeError(f"searchDong resultCode 오류: {result_code}. 응답: {data}")
 
     result = data.get("result", [])
     return [(item[0], item[1]) for item in result if item]
@@ -359,8 +387,8 @@ def normalize_store(raw: dict) -> dict:
 
     # GS25 API trap: lat/longs fields are inverted from their names.
     # API "lat" actually carries longitude, API "longs" actually carries latitude.
-    lat_value = float(raw.get("longs", 0))   # API longs = 실제 위도
-    lng_value = float(raw.get("lat", 0))     # API lat = 실제 경도
+    lat_value = float(raw.get("longs", 0))  # API longs = 실제 위도
+    lng_value = float(raw.get("lat", 0))  # API lat = 실제 경도
 
     return {
         "code": str(raw.get("shopCode", "")),  # 문자열 보존 (정수 변환 금지)
@@ -763,7 +791,12 @@ def main(delay: float = 0.5, dry_run: bool = False) -> int:
             for dong_code, dong_name in dongs:
                 try:
                     stores = fetch_stores(
-                        session, csrf_token, sido_code, gungu_code, dong_code, delay=delay
+                        session,
+                        csrf_token,
+                        sido_code,
+                        gungu_code,
+                        dong_code,
+                        delay=delay,
                     )
                 except Exception as exc:
                     print(
@@ -805,7 +838,9 @@ def main(delay: float = 0.5, dry_run: bool = False) -> int:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="GS25 매장 정보 수집")
     parser.add_argument("--delay", type=float, default=0.5, help="HTTP 호출 간 대기 초")
-    parser.add_argument("--dry-run", action="store_true", help="CSV 파일을 저장하지 않음")
+    parser.add_argument(
+        "--dry-run", action="store_true", help="CSV 파일을 저장하지 않음"
+    )
     args = parser.parse_args()
 
     sys.exit(main(delay=args.delay, dry_run=args.dry_run))
