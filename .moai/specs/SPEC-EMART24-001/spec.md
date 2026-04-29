@@ -151,7 +151,7 @@ WHEN the GitHub Actions cron schedule fires every Monday at 03:00 KST, the syste
 - cron 표현식: `0 18 * * 0` (UTC 일요일 18:00 = KST 월요일 03:00)
 - 워크플로우 파일: `.github/workflows/weekly-emart24.yml`
 - 수동 트리거 지원 (`workflow_dispatch`)
-- 실행 환경: `ubuntu-latest`, Python 3.11+
+- 실행 환경: `ubuntu-latest`, Python 3.14+
 - 실행 시간 5분 이내 정상 완료
 
 ### REQ-EM-002 (Ubiquitous) — emart24 API 수집
