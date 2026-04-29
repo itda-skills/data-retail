@@ -6,6 +6,19 @@
 
 > 본 프로젝트는 **[스킬.잇다](https://itda.work)** 에서 만들었습니다. 스킬·Claude 자동화 개발/교육 문의는 **dev@itda.work** 로 보내주세요.
 
+## AI 어시스턴트(Claude / ChatGPT 등) 활용
+
+상세 활용 지침은 별도 문서 [`AI-GUIDE.md`](AI-GUIDE.md) 에서 단일 소스로 관리됩니다. 지침이 갱신되어도 raw URL 한 곳만 바뀌므로 자동으로 최신 내용이 전파됩니다.
+
+### AI 에게 한 줄로 컨텍스트 전달
+
+다음 문장을 Claude / ChatGPT / Cursor 등에 그대로 붙여넣으세요.
+
+```
+다음 URL의 내용을 먼저 읽고, 안내된 규칙에 따라 데이터셋을 활용해줘:
+https://cdn.jsdelivr.net/gh/itda-skills/data-retail@main/AI-GUIDE.md
+```
+
 ## 현재 수집 체인 (sub-category)
 
 | 카테고리 | 체인 | 디렉터리 | 갱신 주기 | 매장 수 |
@@ -37,31 +50,6 @@ URL 패턴: `https://{host}/itda-skills/data-retail/main/{category}/{chain}/{pat
 - **변경 이력**: `git clone` 후 `git log convenience/emart24/_latest.csv` — 매주 자동 커밋된 diff 가 시계열 변경 기록입니다.
 
 > jsDelivr 는 글로벌 CDN 캐시를 사용하므로 갱신이 최대 12시간 지연될 수 있습니다. 실시간 최신값이 필요하면 GitHub raw URL 또는 git clone 을 사용하세요.
-
-## AI 어시스턴트(Claude / ChatGPT 등) 활용
-
-상세 활용 지침은 별도 문서 [`AI-GUIDE.md`](AI-GUIDE.md) 에서 단일 소스로 관리됩니다. 지침이 갱신되어도 raw URL 한 곳만 바뀌므로 자동으로 최신 내용이 전파됩니다.
-
-### AI 에게 한 줄로 컨텍스트 전달
-
-다음 문장을 Claude / ChatGPT / Cursor 등에 그대로 붙여넣으세요.
-
-```
-다음 URL의 내용을 먼저 읽고, 안내된 규칙에 따라 데이터셋을 활용해줘:
-https://cdn.jsdelivr.net/gh/itda-skills/data-retail@main/AI-GUIDE.md
-```
-
-### 로컬에서 분석하려면 (Claude Code / Claude Desktop)
-
-Claude Code 의 `/add-dir` 와 MCP filesystem 서버는 **로컬 디렉터리만** 지원합니다. GitHub URL 을 직접 마운트하는 기능은 없으므로 먼저 `git clone` 한 뒤 디렉터리를 추가해주세요.
-
-```bash
-git clone https://github.com/itda-skills/data-retail.git
-# 이후 Claude Code 에서:
-/add-dir /path/to/data-retail
-```
-
-clone 한 디렉터리를 추가하면 git 변경 이력까지 분석에 활용할 수 있습니다.
 
 ## 디렉터리 구조
 
