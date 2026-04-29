@@ -50,7 +50,6 @@
 ```
 다음 URL의 내용을 먼저 읽고, 안내된 규칙에 따라 emart24 데이터셋을 활용해줘:
 https://cdn.jsdelivr.net/gh/itda-skills/data-retail@main/AI-GUIDE.md
-(만약 위 URL fetch 가 실패하면 https://raw.githubusercontent.com/itda-skills/data-retail/main/AI-GUIDE.md 로 재시도)
 ```
 
 ### 로컬에서 분석하려면 (Claude Code / Claude Desktop)
