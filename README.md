@@ -40,8 +40,10 @@
 
 다음 문장을 Claude / ChatGPT / Cursor 등에 그대로 붙여넣으세요.
 
-> 다음 URL의 내용을 먼저 읽고, 안내된 규칙에 따라 emart24 데이터셋을 활용해줘:
-> `https://raw.githubusercontent.com/itda-skills/data-retail/main/AI-GUIDE.md`
+```
+다음 URL의 내용을 먼저 읽고, 안내된 규칙에 따라 emart24 데이터셋을 활용해줘:
+https://raw.githubusercontent.com/itda-skills/data-retail/main/AI-GUIDE.md
+```
 
 ### 로컬에서 분석하려면 (Claude Code / Claude Desktop)
 
