@@ -1,0 +1,61 @@
+name: Weekly GS25 Fetch
+
+on:
+  schedule:
+    # 매주 일요일 19:00 UTC = 월요일 04:00 KST (emart24는 18:00 UTC, 1시간 분리)
+    - cron: "0 19 * * 0"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: 저장소 체크아웃 (전체 히스토리)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Python 3.14 설정
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: 의존성 설치
+        run: pip install -r scripts/requirements.txt
+
+      - name: GS25 매장 정보 수집
+        id: fetch
+        run: python scripts/fetch_gs25.py --delay 0.5
+
+      - name: 변경 다이제스트 생성
+        run: python scripts/update_changelog_gs25.py
+        env:
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+
+      - name: git 커밋 및 push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add convenience/gs25/
+
+          if git diff --cached --quiet; then
+            echo "변경 없음. 커밋 건너뜀."
+            exit 0
+          fi
+
+          TODAY=$(date -u +"%Y-%m-%d")
+
+          # 통계 파일에서 숫자 추출 (없으면 0)
+          NEW_COUNT=$(git diff --cached --stat | grep -oP '\d+(?= insertion)' | head -1 || echo 0)
+          UPD_COUNT=0
+          UNOBS_COUNT=0
+
+          git commit -m "chore(gs25): weekly fetch ${TODAY} — 신규 ${NEW_COUNT}, 갱신 ${UPD_COUNT}, 미관측 ${UNOBS_COUNT} [skip ci]"
+          git push
