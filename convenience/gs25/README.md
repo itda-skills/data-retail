@@ -136,10 +136,10 @@ GS25 매장의 `first_seen_at`은 해당 매장이 **이 레포에 처음 등장
 
 ```
 # 최신 전체 매장 스냅샷
-https://raw.githubusercontent.com/{owner}/{repo}/main/convenience/gs25/_latest.csv
+https://raw.githubusercontent.com/itda-skills/data-retail/main/convenience/gs25/_latest.csv
 
 # 2026년 4월 최초 관측 매장
-https://raw.githubusercontent.com/{owner}/{repo}/main/convenience/gs25/2026/04.csv
+https://raw.githubusercontent.com/itda-skills/data-retail/main/convenience/gs25/2026/04.csv
 ```
 
 ---
