@@ -1,6 +1,6 @@
 # data-retail
 
-국내 편의점 체인 매장 데이터를 GitHub Actions로 주 1회 자동 수집·공개하는 오픈 데이터 저장소입니다.
+국내 리테일(편의점·마트·카페·약국 등) 매장 데이터를 GitHub Actions로 주 1회 자동 수집·공개하는 오픈 데이터 저장소입니다.
 
 [![Weekly emart24 Fetch](https://github.com/itda-skills/data-retail/actions/workflows/weekly-emart24.yml/badge.svg)](https://github.com/itda-skills/data-retail/actions/workflows/weekly-emart24.yml)
 
@@ -22,11 +22,6 @@
 - 데이터: **CC-BY-NC-4.0** (비상업적 사용, 출처 표시 조건)
 - 스크립트 (`scripts/`): **MIT** (자유롭게 사용 가능)
 - 상업적 활용은 이마트24에 직접 문의하시기 바랍니다.
-
-## robots.txt 메모
-
-`https://emart24.co.kr/robots.txt` 확인 결과: `/api1/` 경로에 대한 Disallow 규칙이 없습니다.
-본 수집기는 공개 API를 대상으로 0.5초 throttle을 적용하며, 주 1회만 실행합니다.
 
 ## 데이터 접근
 
@@ -87,21 +82,17 @@ data-retail/
 
 후속 체인 예: `convenience/gs25/`, `convenience/cu/`, `grocery/emart/`, `cafe/starbucks/` — 동일 디렉터리 패턴을 따릅니다.
 
-## CSV 컬럼 요약
+## 컬럼 정의
 
-총 26개 (월별 CSV) 또는 27개 (`_latest.csv` 는 `current_month_file` 추가). 자세한 정의는 [`convenience/emart24/README.md`](convenience/emart24/README.md) 참조.
+체인마다 일부 컬럼·서비스 플래그가 다를 수 있습니다. 각 체인 디렉터리의 README 를 참조하세요.
 
-핵심 컬럼: `code`, `title`, `address`, `lat`, `lng`, `open_date`, `end_date`, `start_hhmm`, `end_hhmm`, `is_24h`, `svc_*` (12종), `tobacco_license`, `first_seen_at`, `last_seen_at`.
+- emart24: [`convenience/emart24/README.md`](convenience/emart24/README.md)
 
 ## 알려진 한계
 
-- 매장 폐점 추적은 `last_seen_at` 컬럼으로 근사값만 제공됩니다 (상세 추적은 후속 SPEC).
+- 매장 폐점 추적은 `last_seen_at` 컬럼으로 근사값만 제공됩니다 (정밀 추적은 후속 SPEC).
 - 예정 오픈 매장(`open_date > 오늘`)이 실제로 오픈하지 않을 수 있습니다.
-- API 구조 변경 시 수집이 중단될 수 있습니다. 이슈를 통해 알려주세요.
-
-## 후속 체인 (예약)
-
-GS25, CU, 7-Eleven, 미니스톱 — 동일 디렉터리 패턴으로 추가될 예정입니다.
+- 원천 API 구조 변경 시 해당 체인의 수집이 일시 중단될 수 있습니다. 이슈를 통해 알려주세요.
 
 ## 기여
 

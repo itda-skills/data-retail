@@ -211,3 +211,5 @@ dist-ssr/
 .vercel/
 .netlify/
 .firebase/
+# Local-only project notes (compliance logs, internal memos)
+CLAUDE.local.md
