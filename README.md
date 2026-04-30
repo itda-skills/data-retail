@@ -3,6 +3,7 @@
 국내 리테일(편의점·마트·카페·약국 등) 매장 데이터를 GitHub Actions로 주 1회 자동 수집·공개하는 오픈 데이터 저장소입니다.
 
 [![Weekly emart24 Fetch](https://github.com/itda-skills/data-retail/actions/workflows/weekly-emart24.yml/badge.svg)](https://github.com/itda-skills/data-retail/actions/workflows/weekly-emart24.yml)
+[![Weekly GS25 Fetch](https://github.com/itda-skills/data-retail/actions/workflows/weekly-gs25.yml/badge.svg)](https://github.com/itda-skills/data-retail/actions/workflows/weekly-gs25.yml)
 
 > 본 프로젝트는 **[스킬.잇다](https://itda.work)** 에서 만들었습니다. 스킬·Claude 자동화 개발/교육 문의는 **dev@itda.work** 로 보내주세요.
 
@@ -24,17 +25,18 @@ https://cdn.jsdelivr.net/gh/itda-skills/data-retail@main/AI-GUIDE.md
 | 카테고리 | 체인 | 디렉터리 | 갱신 주기 | 매장 수 |
 |---|------|---------|---------|--------|
 | convenience (편의점) | emart24 | `convenience/emart24/` | 주 1회 (월 03:00 KST) | ~5,700 |
+| convenience (편의점) | GS25 | `convenience/gs25/` | 주 1회 (월 04:00 KST) | ~17,800 |
 
-추후 `convenience/gs25`, `convenience/cu`, `grocery/emart`, `cafe/starbucks` 등으로 확장됩니다.
+추후 `convenience/cu`, `convenience/seven_eleven`, `grocery/emart`, `cafe/starbucks` 등으로 확장됩니다.
 
 ## 데이터 라이선스
 
-본 데이터는 **emart24 공식 점포찾기 API**에서 자동 수집된 가공물이며,
-**원본 저작권은 이마트24(주)에 있습니다.**
+본 데이터는 각 체인의 공식 점포찾기 API에서 자동 수집된 가공물이며,
+**원본 저작권은 각 체인사에 있습니다** (이마트24(주), GS리테일(주) 등).
 
 - 데이터: **CC-BY-NC-4.0** (비상업적 사용, 출처 표시 조건)
 - 스크립트 (`scripts/`): **MIT** (자유롭게 사용 가능)
-- 상업적 활용은 이마트24에 직접 문의하시기 바랍니다.
+- 상업적 활용은 각 체인사에 직접 문의하시기 바랍니다.
 
 ## 데이터 접근
 
@@ -46,7 +48,11 @@ URL 패턴: `https://{host}/itda-skills/data-retail/main/{category}/{chain}/{pat
   - jsDelivr (권장): `https://cdn.jsdelivr.net/gh/itda-skills/data-retail@main/convenience/emart24/_latest.csv`
   - GitHub raw: `https://raw.githubusercontent.com/itda-skills/data-retail/main/convenience/emart24/_latest.csv`
   - 약 5,700행, 27 컬럼, `code` ASC 정렬
-- **월별 파일**: 위 URL 패턴에서 `_latest.csv` 자리를 `{YYYY}/{MM}.csv` 로 교체. 한 매장은 본인의 `open_date` 연·월 파일에 1회만 등장합니다.
+- **전체 스냅샷 (GS25)**:
+  - jsDelivr (권장): `https://cdn.jsdelivr.net/gh/itda-skills/data-retail@main/convenience/gs25/_latest.csv`
+  - GitHub raw: `https://raw.githubusercontent.com/itda-skills/data-retail/main/convenience/gs25/_latest.csv`
+  - 약 17,800행, 31 컬럼, `code` ASC 정렬
+- **월별 파일**: 위 URL 패턴에서 `_latest.csv` 자리를 `{YYYY}/{MM}.csv` 로 교체. 체인별 파티션 키 차이는 각 `{chain}/README.md` 참조 (emart24=`open_date`, GS25=`first_seen_at`).
 - **변경 이력**: `git clone` 후 `git log convenience/emart24/_latest.csv` — 매주 자동 커밋된 diff 가 시계열 변경 기록입니다.
 
 > jsDelivr 는 글로벌 CDN 캐시를 사용하므로 갱신이 최대 12시간 지연될 수 있습니다. 실시간 최신값이 필요하면 GitHub raw URL 또는 git clone 을 사용하세요.
@@ -75,12 +81,14 @@ data-retail/
 체인마다 일부 컬럼·서비스 플래그가 다를 수 있습니다. 각 체인 디렉터리의 README 를 참조하세요.
 
 - emart24: [`convenience/emart24/README.md`](convenience/emart24/README.md)
+- GS25: [`convenience/gs25/README.md`](convenience/gs25/README.md)
 
 ## 알려진 한계
 
 - 매장 폐점 추적은 `last_seen_at` 컬럼으로 근사값만 제공됩니다 (정밀 추적은 후속 SPEC).
 - 예정 오픈 매장(`open_date > 오늘`)이 실제로 오픈하지 않을 수 있습니다.
 - 원천 API 구조 변경 시 해당 체인의 수집이 일시 중단될 수 있습니다. 이슈를 통해 알려주세요.
+- **비현실 미래 날짜는 원천 API의 알려진 noise입니다.** `open_date = 9999-12-31` (sentinel/미정) 또는 `2100-12-XX` 같은 행이 일부 포함되며, 결과적으로 `9999/12.csv`, `2100/12.csv` 디렉터리가 생성됩니다. **본 레포의 손상이 아니며, 분석 시 필터링하면 됩니다** (자세한 안내는 [`AI-GUIDE.md`](AI-GUIDE.md) §4 참조).
 
 ## 기여
 
