@@ -32,6 +32,9 @@ jobs:
         id: fetch
         run: python scripts/fetch_gs25.py --delay 0.5
 
+      - name: 보조 요약 파일 생성 (_summary.json, _index.csv, _closure_candidates.csv)
+        run: python scripts/build_summary.py convenience/gs25
+
       - name: 변경 다이제스트 생성
         run: python scripts/update_changelog_gs25.py
         env:

@@ -31,6 +31,9 @@ jobs:
         id: fetch
         run: python scripts/fetch_emart24.py
 
+      - name: 보조 요약 파일 생성 (_summary.json, _index.csv, _closure_candidates.csv)
+        run: python scripts/build_summary.py convenience/emart24
+
       - name: 변경 다이제스트 생성
         run: python scripts/update_changelog.py
         env:
