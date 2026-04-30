@@ -20,6 +20,17 @@
 https://cdn.jsdelivr.net/gh/itda-skills/data-retail@main/AI-GUIDE.md
 ```
 
+지침을 먼저 로드한 뒤 곧바로 질문을 이어 붙이면 한 번의 대화로 분석을 받을 수 있습니다.
+
+```
+다음 URL의 내용을 먼저 읽고, 안내된 규칙에 따라 데이터셋을 활용해줘:
+https://cdn.jsdelivr.net/gh/itda-skills/data-retail@main/AI-GUIDE.md
+
+최근 1달내 오픈한 emart24 지점의 이름, 주소, 오픈일 목록을 알려줘.
+```
+
+체인을 명시하지 않으면 emart24가 기본값으로 사용됩니다. GS25 등 다른 체인은 질문에 명시하세요 (예: "GS25 강남구 매장 중...").
+
 ## 현재 수집 체인 (sub-category)
 
 | 카테고리 | 체인 | 디렉터리 | 갱신 주기 | 매장 수 |
